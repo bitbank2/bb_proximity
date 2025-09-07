@@ -1,0 +1,83 @@
+//
+// ALS/Proximity Sensor Library
+// written by Larry Bank
+// Project started 10/21/2023
+//
+// Copyright 2023 BitBank Software, Inc. All Rights Reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//    http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//===========================================================================
+
+#include <Arduino.h>
+#include <BitBang_I2C.h>
+
+#ifndef __BB_PROXIMITY__
+#define __BB_PROXIMITY__
+
+enum {
+   BBP_TYPE_UNKNOWN = 0,
+   BBP_TYPE_APDS9930,
+   BBP_TYPE_APDS9960,
+   BBP_TYPE_LTR553
+};
+
+#define BBP_APDS99xx_ADDR 0x39
+#define BBP_LTR553_ADDR 0x23
+
+#define BBP_APDS_WHO_AM_I 0x12
+#define BBP_APDS9930_ID 0x39
+#define BBP_APDS9960_ID 0xAB
+
+#define BBP_LTR553_WHO_AM_I 0x86
+#define BBP_LTR553_ID 0x92
+
+#define BBP_CAPS_ALS       1
+#define BBP_CAPS_PROXIMITY 2
+#define BBP_CAPS_GESTURE   4
+#define BBP_CAPS_COLORS    8
+
+enum {
+  BBP_GESTURE_NONE = 0,
+  BBP_GESTURE_UP,
+  BBP_GESTURE_DOWN,
+  BBP_GESTURE_LEFT,
+  BBP_GESTURE_RIGHT
+};
+
+class BBProximity
+{
+public:
+    BBProximity() { _iType = BBP_TYPE_UNKNOWN; _u32Caps = 0; }
+    ~BBProximity() {}
+    int type(void);
+    uint32_t caps(void);
+    int init(int iSDA = -1, int iSCL = -1, bool bBitBang = false, uint32_t u32Speed=400000, int interruptPin = -1);
+    void start(uint32_t iCaps = 0xff);
+    void stop(void);
+    int getLight(void);
+    int getGesture(void);
+    int getColor(int *r, int *g, int *b, int *c);
+    int getProximity(void);
+    int gestureAvailable(void);
+    int gestureFIFOAvailable(void);
+    void setGestureSensitivity(uint8_t sensitivity);
+    void setInterruptMode(int iMode, int iThreshLow, int iThreshHigh);
+    void setLEDBoost(uint8_t boost);
+
+private:
+    uint16_t readWord(uint8_t reg);
+    int _iAddr;
+    int _iType;
+    int _intPin;
+    uint32_t _u32Caps;
+    BBI2C _bbi2c;
+}; // class BBProximity
+
+#endif // __BB_PROXIMITY__
