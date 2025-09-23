@@ -1,9 +1,11 @@
+#ifndef __BB_PROXIMITY__
+#define __BB_PROXIMITY__
 //
 // ALS/Proximity Sensor Library
 // written by Larry Bank
 // Project started 10/21/2023
 //
-// Copyright 2023 BitBank Software, Inc. All Rights Reserved.
+// Copyright 2023-2025 BitBank Software, Inc. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,12 +16,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //===========================================================================
+#ifdef __LINUX__
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <linux/types.h>
+#include <linux/spi/spidev.h>
+#include <linux/i2c-dev.h>
+#include <time.h>
 
+#else // !LINUX
+
+#ifdef ARDUINO
 #include <Arduino.h>
+#ifndef __AVR_ATtiny85__
+#include <Wire.h>
+#endif // !AVR
 #include <BitBang_I2C.h>
+#else // ESP_IDF?
+#include <stdint.h>
+#endif // ARDUINO
+#endif // !__LINUX__
 
-#ifndef __BB_PROXIMITY__
-#define __BB_PROXIMITY__
+// For Linux and esp-idf we add a file/device handle member
+// to the BBI2C structure
+#ifndef ARDUINO
+typedef struct _tagbbi2c
+{
+  int file_i2c;
+  uint8_t iSDA, iSCL;
+  uint8_t bWire;
+} BBI2C;
+#endif
+
+#define BB_PROX_SUCCESS 0
+#define BB_PROX_ERROR 1
 
 enum {
    BBP_TYPE_UNKNOWN = 0,

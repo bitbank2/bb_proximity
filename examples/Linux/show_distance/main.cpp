@@ -1,0 +1,36 @@
+//
+// bb_proximity "show distance" example
+//
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdint.h>
+#include <time.h>
+#include <bb_proximity.h>
+
+const char *szProxType[] = {"None", "APDS9930", "APDS9960", "LTR553"};
+
+BBProximity bbp;
+
+int main(int argc, char *argv[])
+{
+int i;
+
+    printf("bb_proximity show distance example\n");
+    printf("Initializes, configures, then loops displaying the distance.\n");
+	// I2C bus 1 is the default on RPI hardware
+        // Other Linux systems can use any number from 0 to 10 (usually)
+        i = bbp.init(4); // find a supported RTC
+        if (i != BB_PROX_SUCCESS) {
+            printf("NB: by default your system may require root access for I2C\n");
+	    printf("No supported device found\n");
+            return -1; // problem - quit
+        } else {
+            printf("Proximity sensor detected and initialized\n");
+            printf("device type = %s\n", szProxType[bbp.type()]);
+	}
+
+return 0;
+} /* main() */

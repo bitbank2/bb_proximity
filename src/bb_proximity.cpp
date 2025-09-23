@@ -15,6 +15,9 @@
 //===========================================================================
 #include "bb_proximity.h"
 
+#ifdef __LINUX__
+#include "linux_io.inl"
+#endif // __LINUX__
 // 
 // Initialize the library
 // Detects if a supported sensor is available
@@ -37,12 +40,14 @@ uint8_t ucTemp[4];
         if (ucTemp[0] == BBP_APDS9930_ID) {
             _iType = BBP_TYPE_APDS9930;
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY;
-            return 1;
+            return BB_PROX_SUCCESS;
         } else if (ucTemp[0] == BBP_APDS9960_ID) {
             _iType = BBP_TYPE_APDS9960;
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY | BBP_CAPS_GESTURE | BBP_CAPS_COLORS;
-            return 1;
-        } else Serial.println(ucTemp[0], DEC);
+            return BB_PROX_SUCCESS;
+        } else {
+	    //Serial.println(ucTemp[0], DEC);
+	}
     }
     if (I2CTest(&_bbi2c, BBP_LTR553_ADDR)) { // could be LTR-553ALS
         _iAddr = BBP_LTR553_ADDR;
@@ -50,10 +55,10 @@ uint8_t ucTemp[4];
         if (ucTemp[0] == BBP_LTR553_ID) {
             _iType = BBP_TYPE_LTR553;
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY;
-            return 1;
+            return BB_PROX_SUCCESS;
         }
     } 
-    return 0; // no recognized sensor found
+    return BB_PROX_ERROR; // no recognized sensor found
 } /* init() */
 
 int BBProximity::type(void)
@@ -237,6 +242,7 @@ uint8_t r = 0;
 
 int BBProximity::gestureAvailable(void)
 {
+#ifdef FUTURE
   if (_intPin >= 0) {
     if (digitalRead(_intPin) != 0) { // nothing available
       return 0;
@@ -244,6 +250,7 @@ int BBProximity::gestureAvailable(void)
   } else if (gestureFIFOAvailable() <= 0) { // nothing in the FIFO
     return 0;
   }
+#endif // FUTURE
  // gesture is available
     return 1;
 } /* gestureAvailable() */
@@ -251,7 +258,7 @@ int BBProximity::gestureAvailable(void)
 int BBProximity::getGesture(void)
 {
     int iGesture = BBP_GESTURE_NONE;
-    long t = 0;
+    //long t = 0;
     int DCount = 0, UCount = 0, LCount = 0, RCount = 0;
     
     if (gestureAvailable()) {
@@ -292,6 +299,7 @@ int BBProximity::getGesture(void)
                     } else RCount++;
                 }
             }
+#ifdef FUTURE
             if (u_d_diff || l_r_diff)
                 t = millis();
             
@@ -299,6 +307,7 @@ int BBProximity::getGesture(void)
                 //  DCount = UCount = LCount = RCount = 0;
                 return iGesture;
             }
+#endif // FUTURE
         } // while (1)
     } // if gestureAvailable()
 	return iGesture; // DEBUG
