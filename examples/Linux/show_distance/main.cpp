@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdint.h>
-#include <time.h>
 #include <bb_proximity.h>
 
 const char *szProxType[] = {"None", "APDS9930", "APDS9960", "LTR553"};
@@ -22,7 +21,8 @@ int i;
         printf("Initializes, configures, then loops displaying the distance.\n");
 	// I2C bus 1 is the default on RPI hardware
         // Other Linux systems can use any number from 0 to 10 (usually)
-        i = bbp.init(4); // find a supported RTC
+	// Bus 4 is the default I2C bus (pins 3+5) on the OrangePi RV2
+        i = bbp.init(4); // find a supported proximity sensor 
         if (i != BB_PROX_SUCCESS) {
             printf("NB: by default your system may require root access for I2C\n");
 	    printf("No supported device found\n");
