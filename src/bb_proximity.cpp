@@ -73,6 +73,8 @@ int BBProximity::type(void)
 void BBProximity::setLEDBoost(uint8_t boost) {
 uint8_t u8, u8Temp[4];
 
+    if (boost > BBP_BOOST_MAX) boost = BBP_BOOST_MAX;
+
     if (_iType == BBP_TYPE_LTR553) {
         u8 = 0x78; // default pulse period of 60kHz, 100% duty cycle
         u8 |= (boost & 0x7);
@@ -80,6 +82,7 @@ uint8_t u8, u8Temp[4];
         u8Temp[1] = u8;
         I2CWrite(&_bbi2c, _iAddr, u8Temp, 2);
     } else if (_iType == BBP_TYPE_APDS9930) {
+        if (boost == BBP_BOOST_MAX) boost = BBP_BOOST_HIGH; // only 4 levels
         u8 = (3-boost)<<6; // PDRIVE 0=100mA, 1=50mA, 2=25mA, 3=12.5mA
         u8 |= 0x20; // reserved PDIODE value of 10 = Ch1
         u8 |= 0x00; // 1X gain for proximity, 1X gain for ALS
@@ -87,6 +90,7 @@ uint8_t u8, u8Temp[4];
         u8Temp[1] = u8;
         I2CWrite(&_bbi2c, _iAddr, u8Temp, 2);
     } else if (_iType == BBP_TYPE_APDS9960) {
+        if (boost == BBP_BOOST_MAX) boost = BBP_BOOST_HIGH; // only 4 levels
         if (boost > 3) boost = 3; // valid values 0-3
         I2CReadRegister(&_bbi2c, _iAddr, 0x90, &u8Temp[1], 1);
         u8Temp[0] = 0x90; // int enables + LED boost

@@ -56,6 +56,19 @@ typedef struct _tagbbi2c
 #define BB_PROX_SUCCESS 0
 #define BB_PROX_ERROR 1
 
+// LED boost enumeration
+// The IR LED used to measure distance can be controlled
+// in all of the proximity sensors. A 4 level scale is enough to support
+// them all in a consistent way
+
+enum {
+   BBP_BOOST_MIN = 0,
+   BBP_BOOST_LOW,
+   BBP_BOOST_MED,
+   BBP_BOOST_HIGH, // on the APDS99xx high=max
+   BBP_BOOST_MAX
+};
+
 enum {
    BBP_TYPE_UNKNOWN = 0,
    BBP_TYPE_APDS9930,
