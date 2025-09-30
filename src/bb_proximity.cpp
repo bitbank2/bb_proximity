@@ -15,6 +15,10 @@
 //===========================================================================
 #include "bb_proximity.h"
 
+#if !defined(ARDUINO) && !defined(__LINUX__)
+#include "esp_generic.inl"
+#endif
+
 #ifdef __LINUX__
 #include "linux_io.inl"
 #endif // __LINUX__
