@@ -1,6 +1,9 @@
 //
 // Ambient light example
 //
+// This example shows how to initialize a supported sensor
+// and enable ambient light readings
+//
 #include <bb_proximity.h>
 BBProximity bbp;
 const char *szProxType[] = {"None", "APDS9930", "APDS9960", "LTR553"};
@@ -31,6 +34,7 @@ void setup()
     Serial.println("Error initializing sensor!");
     while (1) {};
   }
+// Loop forever displaying the ambient light value
   while (1) {
     int iALS = bbp.getLight();
     Serial.print("ALS: ");

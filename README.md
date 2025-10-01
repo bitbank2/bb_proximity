@@ -1,6 +1,6 @@
 BitBank ALS/Proximit sensor Library<br>
 ----------------------------------------------------
-Copyright (c) 2023 BitBank Software, Inc.<br>
+Copyright (c) 2023-2025 BitBank Software, Inc.<br>
 Written by Larry Bank<br>
 email: bitbank@pobox.com<br>
 <br>

@@ -107,6 +107,8 @@ public:
     int type(void);
     uint32_t caps(void);
     int init(int iSDA = -1, int iSCL = -1, bool bBitBang = false, uint32_t u32Speed=400000, int interruptPin = -1);
+    int init(BBI2C *pBB);
+    BBI2C *getBB();
     void start(uint32_t iCaps = 0xff);
     void stop(void);
     int getLight(void);
@@ -121,6 +123,7 @@ public:
 
 private:
     uint16_t readWord(uint8_t reg);
+    int initInternal(void);
     int _iAddr;
     int _iType;
     int _intPin;

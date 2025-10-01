@@ -22,21 +22,10 @@
 #ifdef __LINUX__
 #include "linux_io.inl"
 #endif // __LINUX__
-// 
-// Initialize the library
-// Detects if a supported sensor is available
-// returns 1 for success, 0 for failure
-// 
-int BBProximity::init(int iSDA, int iSCL, bool bBitBang, uint32_t u32Speed, int interruptPin)
+int BBProximity::initInternal(void)
 {
 uint8_t ucTemp[4];
 
-    _intPin = interruptPin;
-    _iType = BBP_TYPE_UNKNOWN;
-    _bbi2c.bWire = !bBitBang; // use bit bang?
-    _bbi2c.iSDA = iSDA;
-    _bbi2c.iSCL = iSCL;
-    I2CInit(&_bbi2c, u32Speed);
 // Detect the sensor type
     if (I2CTest(&_bbi2c, BBP_APDS99xx_ADDR)) { // could be APDS99xx
          _iAddr = BBP_APDS99xx_ADDR;
@@ -50,8 +39,8 @@ uint8_t ucTemp[4];
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY | BBP_CAPS_GESTURE | BBP_CAPS_COLORS;
             return BB_PROX_SUCCESS;
         } else {
-	    //Serial.println(ucTemp[0], DEC);
-	}
+            //Serial.println(ucTemp[0], DEC);
+        }
     }
     if (I2CTest(&_bbi2c, BBP_LTR553_ADDR)) { // could be LTR-553ALS
         _iAddr = BBP_LTR553_ADDR;
@@ -61,9 +50,40 @@ uint8_t ucTemp[4];
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY;
             return BB_PROX_SUCCESS;
         }
-    } 
+    }
     return BB_PROX_ERROR; // no recognized sensor found
+} /* initInternal() */
+
+// 
+// Initialize the library
+// Detects if a supported sensor is available
+// returns 1 for success, 0 for failure
+// 
+int BBProximity::init(int iSDA, int iSCL, bool bBitBang, uint32_t u32Speed, int interruptPin)
+{
+
+    _intPin = interruptPin;
+    _iType = BBP_TYPE_UNKNOWN;
+    _bbi2c.bWire = !bBitBang; // use bit bang?
+    _bbi2c.iSDA = iSDA;
+    _bbi2c.iSCL = iSCL;
+    I2CInit(&_bbi2c, u32Speed);
+    return initInternal();
 } /* init() */
+
+int BBProximity::init(BBI2C *pBB)
+{
+    if (pBB) {
+        memcpy(&_bbi2c, pBB, sizeof(BBI2C));
+        return initInternal();
+    }
+    return BB_PROX_ERROR;
+} /* init() */
+
+BBI2C * BBProximity::getBB(void)
+{
+    return &_bbi2c;
+}
 
 int BBProximity::type(void)
 {
