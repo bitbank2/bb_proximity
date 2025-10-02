@@ -8,7 +8,7 @@ libbb_proximity.a: bb_proximity.o
 	sudo cp libbb_proximity.a /usr/local/lib ;\
 	sudo cp ../src/bb_proximity.h /usr/local/include
 
-bb_proximity.o: ../src/bb_proximity.cpp ../src/bb_proximity.h
+bb_proximity.o: ../src/linux_io.inl ../src/bb_proximity.cpp ../src/bb_proximity.h
 	$(CXX) $(CFLAGS) ../src/bb_proximity.cpp
 
 clean:

@@ -44,7 +44,8 @@
 
 // For Linux and esp-idf we add a file/device handle member
 // to the BBI2C structure
-#ifndef ARDUINO
+#if !defined( ARDUINO ) && !defined(__BB_I2C__)
+#define __BB_I2C__
 typedef struct _tagbbi2c
 {
   int file_i2c;

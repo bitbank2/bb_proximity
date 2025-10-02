@@ -67,6 +67,9 @@ int BBProximity::init(int iSDA, int iSCL, bool bBitBang, uint32_t u32Speed, int 
     _bbi2c.bWire = !bBitBang; // use bit bang?
     _bbi2c.iSDA = iSDA;
     _bbi2c.iSCL = iSCL;
+#ifdef __LINUX__
+    _bbi2c.file_i2c = -1; // mark as needing initialization
+#endif
     I2CInit(&_bbi2c, u32Speed);
     return initInternal();
 } /* init() */
