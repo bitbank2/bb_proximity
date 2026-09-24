@@ -34,7 +34,7 @@ uint8_t ucTemp[4];
             _iType = BBP_TYPE_APDS9930;
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY;
             return BB_PROX_SUCCESS;
-        } else if (ucTemp[0] == BBP_APDS9960_ID) {
+        } else if (ucTemp[0] == BBP_APDS9960_ID || ucTemp[0] == BBP_APDS9960_ID_2) {
             _iType = BBP_TYPE_APDS9960;
             _u32Caps = BBP_CAPS_ALS | BBP_CAPS_PROXIMITY | BBP_CAPS_GESTURE | BBP_CAPS_COLORS;
             return BB_PROX_SUCCESS;

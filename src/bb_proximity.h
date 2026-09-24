@@ -83,6 +83,7 @@ enum {
 #define BBP_APDS_WHO_AM_I 0x12
 #define BBP_APDS9930_ID 0x39
 #define BBP_APDS9960_ID 0xAB
+#define BBP_APDS9960_ID_2 0x9e
 
 #define BBP_LTR553_WHO_AM_I 0x86
 #define BBP_LTR553_ID 0x92
