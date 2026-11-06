@@ -27,6 +27,12 @@ int BBProximity::initInternal(void)
 uint8_t ucTemp[4];
 
 // Detect the sensor type
+    if (I2CTest(&_bbi2c, BBP_VEML7700_ADDR)) { // could be VEML7700
+        _iAddr = BBP_VEML7700_ADDR;
+        _iType = BBP_TYPE_VEML7700;
+        _u32Caps = BBP_CAPS_ALS;
+        return BB_PROX_SUCCESS;
+    }
     if (I2CTest(&_bbi2c, BBP_APDS99xx_ADDR)) { // could be APDS99xx
          _iAddr = BBP_APDS99xx_ADDR;
         I2CReadRegister(&_bbi2c, _iAddr, 0x80 | BBP_APDS_WHO_AM_I, ucTemp, 1); // get ID
@@ -142,6 +148,22 @@ void BBProximity::start(uint32_t iCaps)
 {
 uint8_t u8, u8Temp[4];
 
+    if (_iType == BBP_TYPE_VEML7700) {
+         u8Temp[0] = 0x00; // ALS config register
+         u8Temp[1] = 0x00; // gain = 1X, 100ms integration time, no IRQ, power on
+         u8Temp[2] = 0x00;
+         I2CWrite(&_bbi2c, _iAddr, u8Temp, 3);
+         u8Temp[0] = 1;
+         I2CWrite(&_bbi2c, _iAddr, u8Temp, 3);
+         u8Temp[0] = 2;
+         u8Temp[1] = u8Temp[2] = 0xff; // high threshold windows
+         I2CWrite(&_bbi2c, _iAddr, u8Temp, 3);
+         u8Temp[0] = 3; // power saving modes (disable)
+         u8Temp[1] = u8Temp[2] = 0;
+         I2CWrite(&_bbi2c, _iAddr, u8Temp, 3);
+         usleep(4000); // wait for sensor to start
+         return;
+    }
     if (_iType == BBP_TYPE_LTR553) {
         if (iCaps & BBP_CAPS_ALS) { // activate the ALS
              u8Temp[0] = 0x80; // ALS control
@@ -246,6 +268,13 @@ void BBProximity::stop(void)
 {
 uint8_t u8Temp[4];
 
+    if (_iType == BBP_TYPE_VEML7700) {
+         u8Temp[0] = 0x00; // ALS config register
+         u8Temp[1] = 0x00;
+         u8Temp[2] = 0x01; // shut down (bit 0)
+         I2CWrite(&_bbi2c, _iAddr, u8Temp, 3);
+         return;
+    }
     if (_iType == BBP_TYPE_LTR553) {
          u8Temp[0] = 0x80; // ALS control
          u8Temp[1] = 0x00; // gain = 1X, not SW reset, inactive mode
@@ -394,6 +423,11 @@ int BBProximity::getLight(void)
 uint8_t u8Temp[4];
 int LUX=0, iCH0, iCH1, IAC1, IAC2, IAC;
 
+    if (_iType == BBP_TYPE_VEML7700) {
+        I2CReadRegister2(&_bbi2c, _iAddr, 5, u8Temp, 2); // read white output
+        LUX = u8Temp[1] | (u8Temp[0]<<8);
+        return LUX;
+    }
     if (_iType == BBP_TYPE_LTR553) {
         I2CReadRegister(&_bbi2c, _iAddr, 0x88, u8Temp, 4);
         LUX = u8Temp[0] | (u8Temp[1]<<8);

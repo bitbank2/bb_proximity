@@ -1,6 +1,7 @@
 //
 // I/O wrapper functions for Linux
 //
+#include <linux/i2c.h>
 static void delay(uint32_t u32)
 {
         usleep(u32*1000);
@@ -50,10 +51,10 @@ int rc;
 #endif // FUTURE
 //
 // Read n bytes from the given address, after setting the register number
-//
+// 
 static int I2CReadRegister(BBI2C *pI2C, uint8_t iAddr, uint8_t u8Register, uint8_t *pData, int iLen)
-{
-int rc;
+{       
+int rc; 
         // Reading from an I2C device involves first writing the 8-bit register
         // followed by reading the data
         ioctl(pI2C->file_i2c, I2C_SLAVE, iAddr);
@@ -62,6 +63,30 @@ int rc;
         {
                 rc = read(pI2C->file_i2c, pData, iLen);
         }
+        return rc;
+
+} /* I2CReadRegister() */
+//
+// Read n bytes from the given address, after setting the register number
+//
+static int I2CReadRegister2(BBI2C *pI2C, uint8_t iAddr, uint8_t u8Register, uint8_t *pData, int iLen)
+{
+int rc;
+struct i2c_msg msgs[2];
+struct i2c_rdwr_ioctl_data msgset;
+
+        // Reading from an I2C device involves first writing the 8-bit register
+        // followed by reading the data
+        msgs[0].addr = msgs[1].addr = iAddr;
+        msgs[0].buf = &u8Register;
+        msgs[0].len = 1;
+        msgs[0].flags = 0; // writing
+        msgs[1].buf = pData;
+        msgs[1].len = iLen;
+        msgs[1].flags = I2C_M_RD; 
+        msgset.nmsgs = 2; // one write and one read
+        msgset.msgs = msgs;
+        rc = ioctl(pI2C->file_i2c, I2C_RDWR, &msgset);
         return rc;
 
 } /* I2CReadRegister() */

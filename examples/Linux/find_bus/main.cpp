@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <bb_proximity.h>
 
-const char *szProxType[] = {"None", "APDS9930", "APDS9960", "LTR553"};
+const char *szProxType[] = {"None", "APDS9930", "APDS9960", "LTR553", "VEML7700"};
 
 BBProximity bbp;
 
@@ -67,7 +67,8 @@ uint32_t u32Buses = 0; // available I2C bus numbers (0-31)
 	bbp.start(BBP_CAPS_PROXIMITY); // start reading proximity values
 	while (1) {
 		int iPhotons = bbp.getProximity();
-		printf("Photons: %d\n", iPhotons);
+                int iLUX = bbp.getLight();
+		printf("Photons (distance): %d Light: %d\n", iPhotons, iLUX);
 		usleep(250000); // show 4 samples per second
 	}
 return 0;
